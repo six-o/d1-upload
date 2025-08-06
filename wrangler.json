@@ -9,6 +9,10 @@
 			"bucket_name": "my-files-bucket"
 		}
 	],
+	"limits": {
+		"cpu_ms": 50000
+	},
+	"compatibility_flags": ["nodejs_compat"],
 	"observability": {
 		"enabled": true
 	}

@@ -1,6 +1,28 @@
 export default {
-	async fetch(request: any, env: any): Promise<any> {
+	async fetch(request: any, env: any): Promise<Response> {
 		const url = new URL(request.url);
+
+		// 添加 CORS 標頭以提升跨域性能
+		const corsHeaders = {
+			"Access-Control-Allow-Origin": "*",
+			"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+			"Access-Control-Allow-Headers": "Content-Type",
+		};
+
+		// 處理 OPTIONS 請求（CORS 預檢）
+		if (request.method === "OPTIONS") {
+			return new Response(null, { headers: corsHeaders });
+		}
+
+		// 設置快取標頭（靜態資源）
+		const cacheHeaders = url.pathname.includes("/download/")
+			? {
+					"Cache-Control": "public, max-age=3600", // 1小時快取
+					ETag: `"${Date.now()}"`,
+			  }
+			: {
+					"Cache-Control": "no-cache",
+			  };
 
 		// 處理主頁面 - 顯示 R2 檔案列表
 		if (request.method === "GET" && url.pathname === "/") {
@@ -406,6 +428,7 @@ export default {
 						transition: all 0.3s ease;
 						box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);
 						margin-bottom: 20px;
+						position: relative;
 					}
 					.submit-btn:hover {
 						transform: translateY(-2px);
@@ -416,6 +439,27 @@ export default {
 						cursor: not-allowed;
 						transform: none;
 						box-shadow: none;
+					}
+					.submit-btn.uploading {
+						background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%);
+						cursor: wait;
+					}
+					.submit-btn.uploading::after {
+						content: '';
+						position: absolute;
+						top: 50%;
+						right: 15px;
+						transform: translateY(-50%);
+						width: 16px;
+						height: 16px;
+						border: 2px solid transparent;
+						border-top: 2px solid white;
+						border-radius: 50%;
+						animation: spin 1s linear infinite;
+					}
+					@keyframes spin {
+						0% { transform: translateY(-50%) rotate(0deg); }
+						100% { transform: translateY(-50%) rotate(360deg); }
 					}
 					.back-link {
 						display: inline-block;
@@ -548,6 +592,14 @@ export default {
 							selectedFile.classList.add('show');
 							submitBtn.disabled = false;
 						}
+					});
+
+					// 表單提交優化
+					document.querySelector('.upload-form').addEventListener('submit', function(e) {
+						const submitBtn = document.getElementById('submitBtn');
+						submitBtn.classList.add('uploading');
+						submitBtn.textContent = '🚀 上傳中...';
+						submitBtn.disabled = true;
 					});
 				</script>
 			</body>
