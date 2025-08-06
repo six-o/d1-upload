@@ -1,0 +1,17 @@
+name = "d1-upload"
+main = "src/index.ts"
+compatibility_date = "2025-04-01"
+upload_source_maps = true
+
+[observability]
+enabled = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "d1-template-database"
+database_id = "014e0a7f-f7ca-4e1f-9410-1f24df4a134f"
+
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "d1-upload-files"
+preview_bucket_name = "d1-upload-files"
