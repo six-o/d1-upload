@@ -2,5 +2,4 @@
 
 interface Env {
 	FILES: R2Bucket;
-	DB: D1Database;
 }

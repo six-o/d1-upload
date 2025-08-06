@@ -1,16 +1,15 @@
 {
-  "compatibility_date": "2025-04-01",
-  "main": "src/index.ts",
-  "name": "d1-upload",
-  "upload_source_maps": true,
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_id": "014e0a7f-f7ca-4e1f-9410-1f24df4a134f",
-      "database_name": "d1-template-database"
-    }
-  ],
-  "observability": {
-    "enabled": true
-  }
+	"compatibility_date": "2025-04-01",
+	"main": "src/index.ts",
+	"name": "r2-file-manager",
+	"upload_source_maps": true,
+	"r2_buckets": [
+		{
+			"binding": "FILES",
+			"bucket_name": "my-files-bucket"
+		}
+	],
+	"observability": {
+		"enabled": true
+	}
 }

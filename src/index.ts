@@ -1,6 +1,3 @@
-import { renderHome } from "./home";
-import { renderHtml } from "./renderHtml";
-
 export default {
 	async fetch(request: any, env: any): Promise<any> {
 		const url = new URL(request.url);
@@ -742,6 +739,42 @@ export default {
 			}
 		}
 
+		// 處理 /download/{fileName} 路徑 - 下載檔案
+		if (request.method === "GET" && url.pathname.startsWith("/download/")) {
+			try {
+				const fileName = decodeURIComponent(url.pathname.substring(10)); // 移除 "/download/"
+
+				// 從 R2 獲取檔案
+				const object = await env.FILES.get(fileName);
+
+				if (!object) {
+					return new Response("檔案未找到", { status: 404 });
+				}
+
+				// 提取原始檔案名稱（移除時間戳前綴）
+				const getOriginalFileName = (fullName) => {
+					const match = fullName.match(/^\d+_(.+)$/);
+					return match ? match[1] : fullName;
+				};
+
+				const originalFileName = getOriginalFileName(fileName);
+
+				return new Response(object.body, {
+					headers: {
+						"Content-Type":
+							object.httpMetadata?.contentType ||
+							"application/octet-stream",
+						"Content-Disposition": `attachment; filename="${originalFileName}"`,
+						"Content-Length": object.size.toString(),
+					},
+				});
+			} catch (error) {
+				return new Response(`下載錯誤: ${error.message}`, {
+					status: 500,
+				});
+			}
+		}
+
 		// 處理 /delete/{fileName} 路徑 - 刪除檔案
 		if (request.method === "GET" && url.pathname.startsWith("/delete/")) {
 			try {
@@ -937,7 +970,7 @@ export default {
 								<td><strong>${formatFileSize(obj.size)}</strong></td>
 								<td>${obj.uploaded.toLocaleString("zh-TW")}</td>
 								<td>
-									<a href="/download/${
+									<a href="/${
 										obj.key
 									}" target="_blank" class="action-btn download-btn">📥 下載</a>
 									<a href="/delete/${obj.key}" 
